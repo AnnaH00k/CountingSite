@@ -58,9 +58,7 @@ export default function EasyCounter() {
       <div className="max-w-6xl mx-auto">
         <div className="bg-gray-800 rounded-lg shadow-xl p-6 mb-6">
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold text-white mb-2">
-              Easy Counter
-            </h1>
+            <h1 className="text-3xl font-bold text-white mb-2">Easy Counter</h1>
             <p className="text-gray-300 mb-4">
               Drücke{" "}
               <span className="font-mono bg-gray-700 text-gray-200 px-2 py-1 rounded">
@@ -102,6 +100,15 @@ export default function EasyCounter() {
               <div className="text-2xl font-bold">{counts.ausfahrend}</div>
               <div className="text-sm">Ausfahrend</div>
               <div className="text-xs mt-1 opacity-75">A</div>
+            </button>
+
+            {/* New Reset Button */}
+            <button
+              onClick={resetCounts}
+              className="bg-blue-900 hover:bg-blue-800 text-white rounded-lg p-4 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            >
+              <div className="text-2xl font-bold">Reset</div>
+              <div className="text-sm">Zurücksetzen</div>
             </button>
           </div>
         </div>
