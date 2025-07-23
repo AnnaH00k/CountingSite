@@ -200,7 +200,7 @@ export default function TrafficCounter() {
             </h1>
             <Link
               onClick={() => {
-                window.location.href = "/easyCounter";
+                window.location.href = "/CountingSite/easyCounter";
               }}
               className="text-3xl w-full font-bold text-white mb-2"
             >
