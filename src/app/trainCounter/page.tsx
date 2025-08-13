@@ -101,12 +101,32 @@ export default function TrafficCounter() {
     try {
       const savedCounts = document.cookie
         .split("; ")
-        .find((row) => row.startsWith("trafficCounts="))
+        .find((row) => row.startsWith("trainCounts="))
         ?.split("=")[1];
 
       if (savedCounts) {
         const parsed = JSON.parse(decodeURIComponent(savedCounts));
-        return parsed;
+
+        // Ensure the parsed data has the complete structure
+        const defaultCounts = getDefaultCounts();
+        const validatedCounts: CountsState = { ...defaultCounts };
+
+        // Only use parsed data if it has the correct structure
+        if (parsed && typeof parsed === "object") {
+          Object.keys(defaultCounts).forEach((key) => {
+            const categoryId = parseInt(key) as CategoryId;
+            if (
+              parsed[categoryId] &&
+              typeof parsed[categoryId] === "object" &&
+              typeof parsed[categoryId].einfahrend === "number" &&
+              typeof parsed[categoryId].ausfahrend === "number"
+            ) {
+              validatedCounts[categoryId] = parsed[categoryId];
+            }
+          });
+        }
+
+        return validatedCounts;
       }
     } catch (error) {
       console.warn("Fehler beim Laden der gespeicherten Daten:", error);
@@ -123,7 +143,7 @@ export default function TrafficCounter() {
       const expiryDate = new Date();
       expiryDate.setFullYear(expiryDate.getFullYear() + 1); // 1 Jahr gültig
 
-      document.cookie = `trafficCounts=${encodeURIComponent(
+      document.cookie = `trainCounts=${encodeURIComponent(
         JSON.stringify(counts)
       )}; expires=${expiryDate.toUTCString()}; path=/; SameSite=Lax`;
     } catch (error) {
@@ -141,11 +161,17 @@ export default function TrafficCounter() {
   }, []);
 
   const updateCount = (category: CategoryId, direction: Direction) => {
+    // Ensure counts[category] exists and has the correct structure
+    const currentCategoryCounts = counts[category] || {
+      einfahrend: 0,
+      ausfahrend: 0,
+    };
+
     const newCounts = {
       ...counts,
       [category]: {
-        ...counts[category],
-        [direction]: counts[category][direction] + 1,
+        ...currentCategoryCounts,
+        [direction]: (currentCategoryCounts[direction] || 0) + 1,
       },
     };
     setCounts(newCounts);
@@ -168,8 +194,15 @@ export default function TrafficCounter() {
     let totalEin = 0,
       totalAus = 0;
     Object.values(counts).forEach((count) => {
-      totalEin += count.einfahrend;
-      totalAus += count.ausfahrend;
+      if (
+        count &&
+        typeof count === "object" &&
+        typeof count.einfahrend === "number" &&
+        typeof count.ausfahrend === "number"
+      ) {
+        totalEin += count.einfahrend;
+        totalAus += count.ausfahrend;
+      }
     });
     return { einfahrend: totalEin, ausfahrend: totalAus };
   };
@@ -299,9 +332,7 @@ export default function TrafficCounter() {
         <div className="max-w-6xl mx-auto">
           <div className="bg-gray-800 rounded-lg shadow-xl p-3 mb-3">
             <div className="text-center">
-              <h1 className="text-xl font-bold text-white mb-1">
-                Zugzähler
-              </h1>
+              <h1 className="text-xl font-bold text-white mb-1">Zugzähler</h1>
               <p className="text-gray-300">Lade gespeicherte Daten...</p>
             </div>
           </div>
@@ -315,10 +346,7 @@ export default function TrafficCounter() {
       <div className="max-w-6xl mx-auto">
         <div className="bg-gray-800 rounded-lg shadow-xl p-3 mb-3">
           <div className="text-center mb-3">
-            <h1 className="text-3xl font-bold text-white mb-4">
-              Zugzähler
-            </h1>
-          
+            <h1 className="text-3xl font-bold text-white mb-4">Zugzähler</h1>
 
             <p className="text-gray-300 mb-2 text-sm">
               Tastenkombinationen:{" "}
@@ -409,7 +437,8 @@ export default function TrafficCounter() {
                       </div>
                       <div className="text-right">
                         <p className="text-lg font-bold text-gray-100">
-                          {counts[key].einfahrend + counts[key].ausfahrend}
+                          {(counts[key]?.einfahrend || 0) +
+                            (counts[key]?.ausfahrend || 0)}
                         </p>
                         <p className="text-xs text-gray-400">Gesamt</p>
                       </div>
@@ -423,7 +452,7 @@ export default function TrafficCounter() {
                           className="w-full bg-green-600 hover:bg-green-500 text-white rounded-lg p-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-400"
                         >
                           <div className="text-lg font-bold">
-                            {counts[key].einfahrend}
+                            {counts[key]?.einfahrend || 0}
                           </div>
                           <div className="text-xs">Einfahrend</div>
                           <div className="text-xs mt-0.5 opacity-75">
@@ -452,7 +481,7 @@ export default function TrafficCounter() {
                           className="w-full bg-red-600 hover:bg-red-500 text-white rounded-lg p-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-400"
                         >
                           <div className="text-lg font-bold">
-                            {counts[key].ausfahrend}
+                            {counts[key]?.ausfahrend || 0}
                           </div>
                           <div className="text-xs">Ausfahrend</div>
                           <div className="text-xs mt-0.5 opacity-75">
