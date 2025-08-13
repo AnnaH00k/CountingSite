@@ -98,6 +98,11 @@ export default function TrafficCounter() {
 
   // Function to load data from cookies (client-side only)
   const loadCountsFromCookies = (): CountsState => {
+    // Check if we're in a browser environment and document is available
+    if (typeof window === "undefined" || typeof document === "undefined") {
+      return getDefaultCounts();
+    }
+
     try {
       const savedCounts = document.cookie
         .split("; ")
@@ -138,6 +143,11 @@ export default function TrafficCounter() {
   // Function to save data to cookies
   const saveCountsToCookies = (counts: CountsState) => {
     if (!mounted) return; // Don't save during SSR
+
+    // Check if we're in a browser environment and document is available
+    if (typeof window === "undefined" || typeof document === "undefined") {
+      return;
+    }
 
     try {
       const expiryDate = new Date();
