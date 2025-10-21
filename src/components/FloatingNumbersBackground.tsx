@@ -14,8 +14,8 @@ interface FloatingNumber {
 
 const FloatingNumbersBackground: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationRef = useRef<number>();
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const animationRef = useRef<number>(undefined);
+  const [dimensions, setDimensions] = useState<{ width: number; height: number }>({ width: 0, height: 0 });
   const numbersRef = useRef<FloatingNumber[]>([]);
 
   // Generate random numbers 0-9
