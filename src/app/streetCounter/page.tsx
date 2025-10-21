@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Car, Truck, Bus, Bike, Zap, Boxes, Link } from "lucide-react";
+import { Car, Truck, Bus, Bike, Zap, Boxes, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 // Type definitions
 type CategoryId = 1 | 2 | 3 | 4 | 5 | 6;
@@ -41,12 +42,12 @@ export default function TrafficCounter() {
   const [lastAction, setLastAction] = useState<string>("");
 
   const categories: CategoriesConfig = {
-    1: { name: "Fahrräder", icon: Bike, color: "bg-green-500" },
-    2: { name: "Motor. Zweiräder", icon: Zap, color: "bg-blue-500" },
-    3: { name: "PKW / Lieferwägen", icon: Car, color: "bg-purple-500" },
-    4: { name: "Kraftomnibusse", icon: Bus, color: "bg-orange-500" },
-    5: { name: "LKW ohne Anhänger", icon: Truck, color: "bg-red-500" },
-    6: { name: "LKW mit Anhänger", icon: Boxes, color: "bg-gray-700" },
+    1: { name: "Fahrräder", icon: Bike, color: "bg-green-900" },
+    2: { name: "Motor. Zweiräder", icon: Zap, color: "bg-yellow-900" },
+    3: { name: "PKW / Lieferwägen", icon: Car, color: "bg-gray-900" },
+    4: { name: "Kraftomnibusse", icon: Bus, color: "bg-blue-900" },
+    5: { name: "LKW ohne Anhänger", icon: Truck, color: "bg-red-900" },
+    6: { name: "LKW mit Anhänger", icon: Boxes, color: "bg-purple-900" },
   };
 
   // Function to load data from cookies (client-side only)
@@ -174,15 +175,25 @@ export default function TrafficCounter() {
   // Show loading state during initial mount to prevent hydration mismatch
   if (!mounted) {
     return (
-      <div className="min-h-screen bg-gray-900 p-4">
-        <Link href="/EasyCounter">Easy Counter</Link>
+      <div className="min-h-screen bg-black p-4">
         <div className="max-w-6xl mx-auto">
-          <div className="bg-gray-800 rounded-lg shadow-xl p-6 mb-6">
+          {/* Navigation */}
+          <div className="mb-6">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 text-gray-300 hover:text-white transition-colors duration-200"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Zurück zur Hauptseite
+            </Link>
+          </div>
+
+          <div className="border border-gray-500 shadow-white/50 rounded-lg p-6 mb-6">
             <div className="text-center">
-              <h1 className="text-3xl font-bold text-white mb-2">
+              <h1 className="text-3xl font-bold text-gray-300 mb-2">
                 Verkehrszähler
               </h1>
-              <p className="text-gray-300">Lade gespeicherte Daten...</p>
+              <p className="text-gray-500">Lade gespeicherte Daten...</p>
             </div>
           </div>
         </div>
@@ -191,64 +202,48 @@ export default function TrafficCounter() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 p-4">
+    <div className="min-h-screen bg-black p-4">
       <div className="max-w-6xl mx-auto">
-        <div className="bg-gray-800 rounded-lg shadow-xl p-6 mb-6">
-          <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold text-white mb-4">
-              Verkehrszähler
-            </h1>
-         
+        {/* Navigation */}
+        <div className="mb-6">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-gray-300 hover:text-white transition-colors duration-200 cursor-pointer top-4 left-4 absolute hover:scale-105"
+          >
+            <ArrowLeft className="w-10 h-10" />
+          </Link>
+        </div>
 
-            <p className="text-gray-300 mb-4">
-              Tastenkombinationen:{" "}
-              <span className="font-mono bg-gray-700 text-gray-200 px-2 py-1 rounded">
-                E + 1-6
-              </span>{" "}
-              für Einfahrend,
-              <span className="font-mono bg-gray-700 text-gray-200 px-2 py-1 rounded ml-2">
-                A + 1-6
-              </span>{" "}
-              für Ausfahrend,
-              <span className="font-mono bg-gray-700 text-gray-200 px-2 py-1 rounded ml-2">
-                R
-              </span>{" "}
-              zum Zurücksetzen
-              <br />
-              <span className="text-sm text-gray-400 mt-2 block">
-                💾 Daten werden automatisch gespeichert
-              </span>
-            </p>
-            {lastAction && (
-              <div className="bg-blue-900 border border-blue-700 rounded-lg p-3 mb-4">
-                <p className="text-blue-200 font-medium">
-                  Letzte Aktion: {lastAction}
-                </p>
-              </div>
-            )}
+        <div className=" flex flex-col justify-center min-h-[90vh] p-6 mb-6">
+          <div className="text-center mb-6">
+            <h1 className="text-3xl font-bold text-gray-300 mb-4">
+              Verkehrs Zähler
+            </h1>
+
+          
           </div>
 
           {/* Gesamtzähler */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div className="bg-green-800 border border-green-600 rounded-lg p-4 text-center">
-              <h3 className="text-lg font-semibold text-green-200">
+            <div className="bg-white/10 border border-gray-600 rounded-lg p-4 text-center">
+              <h3 className="text-lg font-semibold text-gray-300">
                 Einfahrend Gesamt
               </h3>
-              <p className="text-3xl font-bold text-green-100">
+              <p className="text-3xl font-bold text-gray-200">
                 {totals.einfahrend}
               </p>
             </div>
-            <div className="bg-red-800 border border-red-600 rounded-lg p-4 text-center">
-              <h3 className="text-lg font-semibold text-red-200">
+            <div className="bg-white/20 border border-gray-500 rounded-lg p-4 text-center">
+              <h3 className="text-lg font-semibold text-gray-300">
                 Ausfahrend Gesamt
               </h3>
-              <p className="text-3xl font-bold text-red-100">
+              <p className="text-3xl font-bold text-gray-200">
                 {totals.ausfahrend}
               </p>
             </div>
-            <div className="bg-gray-700 border border-gray-600 rounded-lg p-4 text-center">
-              <h3 className="text-lg font-semibold text-gray-200">Gesamt</h3>
-              <p className="text-3xl font-bold text-gray-100">
+            <div className="bg-black border border-gray-600 rounded-lg p-4 text-center">
+              <h3 className="text-lg font-semibold text-gray-300">Gesamt</h3>
+              <p className="text-3xl font-bold text-gray-200">
                 {totals.einfahrend + totals.ausfahrend}
               </p>
             </div>
@@ -263,7 +258,7 @@ export default function TrafficCounter() {
                 return (
                   <div
                     key={key}
-                    className="bg-gray-700 rounded-lg p-4 border border-gray-600"
+                    className="bg-black rounded-lg p-4 border border-gray-600"
                   >
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
@@ -272,7 +267,7 @@ export default function TrafficCounter() {
                         </div>
                         <div>
                           <h3 className="font-semibold text-gray-100">
-                            {key}. {category.name}
+                            {category.name}
                           </h3>
                           <p className="text-sm text-gray-400">Taste: {key}</p>
                         </div>
@@ -290,7 +285,7 @@ export default function TrafficCounter() {
                       <div className="text-center">
                         <button
                           onClick={() => updateCount(key, "einfahrend")}
-                          className="w-full bg-green-600 hover:bg-green-500 text-white rounded-lg p-4 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-400"
+                          className="w-full bg-white/10 hover:bg-white/40 text-gray-300 rounded-lg p-4 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 border border-gray-600"
                         >
                           <div className="text-2xl font-bold">
                             {counts[key].einfahrend}
@@ -306,7 +301,7 @@ export default function TrafficCounter() {
                       <div className="text-center">
                         <button
                           onClick={() => updateCount(key, "ausfahrend")}
-                          className="w-full bg-red-600 hover:bg-red-500 text-white rounded-lg p-4 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-400"
+                          className="w-full bg-white/20 hover:bg-white/40 text-gray-300 rounded-lg p-4 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 border border-gray-600"
                         >
                           <div className="text-2xl font-bold">
                             {counts[key].ausfahrend}
@@ -326,27 +321,22 @@ export default function TrafficCounter() {
 
           {/* Reset Button */}
           <div className="text-center mt-8">
+            {lastAction && (
+              <div className="  rounded-lg p-3 mb-4">
+                <p className="text-white/50 font-medium">
+                  Letzte Aktion: {lastAction}
+                </p>
+              </div>
+            )}
             <button
               onClick={resetCounts}
-              className="bg-gray-600 hover:bg-gray-500 text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400"
+              className="bg-black hover:bg-white/20 text-gray-300 px-8 py-3 rounded-lg font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 border border-gray-600"
             >
               Alle Zähler zurücksetzen (R)
             </button>
           </div>
 
-          {/* Aktive Tasten Anzeige */}
-          {activeKeys.size > 0 && (
-            <div className="mt-4 text-center">
-              <div className="bg-yellow-900 border border-yellow-700 rounded-lg p-2 inline-block">
-                <span className="text-yellow-200 text-sm">
-                  Aktive Tasten:{" "}
-                  {Array.from(activeKeys)
-                    .map((k: string) => k.toUpperCase())
-                    .join(" + ")}
-                </span>
-              </div>
-            </div>
-          )}
+         
         </div>
       </div>
     </div>

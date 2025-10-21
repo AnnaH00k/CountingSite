@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 // Type definitions
 type Direction = "einfahrend" | "ausfahrend";
@@ -15,6 +17,7 @@ export default function EasyCounter() {
     einfahrend: 0,
     ausfahrend: 0,
   });
+  const [activeKeys, setActiveKeys] = useState<Set<string>>(new Set());
   const [lastAction, setLastAction] = useState<string>("");
 
   const updateCount = (direction: Direction) => {
@@ -37,6 +40,8 @@ export default function EasyCounter() {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       const key = event.key.toLowerCase();
+      setActiveKeys((prev) => new Set([...prev, key]));
+
       if (key === "e") {
         updateCount("einfahrend");
       } else if (key === "a") {
@@ -46,47 +51,57 @@ export default function EasyCounter() {
       }
     };
 
+    const handleKeyUp = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase();
+      setActiveKeys((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(key);
+        return newSet;
+      });
+    };
+
     window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
     };
   }, [counts]);
 
   return (
-    <div className="min-h-screen bg-gray-900 p-4">
+    <div className="min-h-screen bg-black p-4">
       <div className="max-w-6xl mx-auto">
-        <div className="bg-gray-800 rounded-lg shadow-xl p-6 mb-6">
+        {/* Navigation */}
+        <div className="mb-6">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-gray-300 hover:text-white transition-colors duration-200 cursor-pointer top-4 left-4 absolute hover:scale-105"
+          >
+            <ArrowLeft className="w-10 h-10" />
+          </Link>
+        </div>
+
+        <div className="flex min-h-[90vh] flex-col  justify-center p-6 mb-6">
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold text-white mb-2">Easy Counter</h1>
-            <p className="text-gray-300 mb-4">
-              Drücke{" "}
-              <span className="font-mono bg-gray-700 text-gray-200 px-2 py-1 rounded">
-                E
-              </span>{" "}
-              für Einfahrend,
-              <span className="font-mono bg-gray-700 text-gray-200 px-2 py-1 rounded ml-2">
-                A
-              </span>{" "}
-              für Ausfahrend und{" "}
-              <span className="font-mono bg-gray-700 text-gray-200 px-2 py-1 rounded ml-2">
-                R
-              </span>{" "}
-              zum Zurücksetzen
-            </p>
+            <h1 className="text-3xl font-bold text-gray-300 mb-2">
+              Einfacher Zähler
+            </h1>
+           
+          
           </div>
 
-          <div className="text-center">
-            <p className="text-2xl font-bold text-gray-100">
+          <div className="text-center ">
+            <p className="text-2xl  font-bold text-gray-300">
               {counts.einfahrend + counts.ausfahrend}
             </p>
-            <p className="text-sm text-gray-400">Gesamt</p>
+            <p className="text-sm text-gray-500">Gesamt</p>
           </div>
 
           <div className="grid grid-cols-1 gap-4 mt-4">
             <button
               onClick={() => updateCount("einfahrend")}
-              className="bg-green-600 hover:bg-green-500 text-white rounded-lg p-4 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-400"
+              className="bg-white/10 hover:bg-white/40 text-gray-300 rounded-lg p-4 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 border border-gray-600"
             >
               <div className="text-2xl font-bold">{counts.einfahrend}</div>
               <div className="text-sm">Einfahrend</div>
@@ -95,7 +110,7 @@ export default function EasyCounter() {
 
             <button
               onClick={() => updateCount("ausfahrend")}
-              className="bg-red-600 hover:bg-red-500 text-white rounded-lg p-4 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-400"
+              className="bg-white/20 hover:bg-white/40 text-gray-300 rounded-lg p-4 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 border border-gray-600"
             >
               <div className="text-2xl font-bold">{counts.ausfahrend}</div>
               <div className="text-sm">Ausfahrend</div>
@@ -105,12 +120,25 @@ export default function EasyCounter() {
             {/* New Reset Button */}
             <button
               onClick={resetCounts}
-              className="bg-blue-900 hover:bg-blue-800 text-white rounded-lg p-4 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="bg-black hover:bg-white/20 text-gray-300 rounded-lg p-4 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 border border-gray-600"
             >
               <div className="text-2xl font-bold">Reset</div>
-              <div className="text-sm">Zurücksetzen</div>
+              <div className="text-sm">R</div>
             </button>
           </div>
+
+          {/* Last Action Display */}
+          {lastAction && (
+            <div className="mt-4 text-center">
+              <div className="rounded-lg p-3">
+                <p className="text-white/50 font-medium">
+                  Letzte Aktion: {lastAction}
+                </p>
+              </div>
+            </div>
+          )}
+
+         
         </div>
       </div>
     </div>

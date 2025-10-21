@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Verkehrszähler",
-  description: "Um die verkehrszählung zu vereinfachen.",
+  title: "CountingSite",
+  description: "Um die Verkehrszählung zu vereinfachen.",
 };
 
 export default function RootLayout({
