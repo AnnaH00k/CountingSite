@@ -314,6 +314,8 @@ export default function TrafficCounter() {
       direction === "einfahrend" ? "Einsteiger" : "Aussteiger";
     const text = formatAbbrevList(counts, direction);
 
+    if (!text) return;
+
     if (typeof navigator === "undefined" || !navigator.clipboard) {
       setLastAction("Kopieren nicht verfügbar");
       return;
@@ -321,11 +323,7 @@ export default function TrafficCounter() {
 
     try {
       await navigator.clipboard.writeText(text);
-      setLastAction(
-        text
-          ? `${label} kopiert: ${text}`
-          : `${label}: nichts zu kopieren (keine Zählungen)`
-      );
+      setLastAction(`${label} kopiert: ${text}`);
     } catch {
       setLastAction(`${label}: Kopieren fehlgeschlagen`);
     }
@@ -446,6 +444,11 @@ export default function TrafficCounter() {
     };
   }, [mounted, activeKeys]);
 
+  const einsteigerCopyText = formatAbbrevList(counts, "einfahrend");
+  const aussteigerCopyText = formatAbbrevList(counts, "ausfahrend");
+  const canCopyEinsteiger = einsteigerCopyText.length > 0;
+  const canCopyAussteiger = aussteigerCopyText.length > 0;
+
   // Show loading state during initial mount to prevent hydration mismatch
   if (!mounted) {
     return (
@@ -506,16 +509,18 @@ export default function TrafficCounter() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
             <button
               type="button"
+              disabled={!canCopyEinsteiger}
               onClick={() => copyAbbrevList("einfahrend")}
-              className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/25 text-gray-300 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400"
+              className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/25 disabled:bg-white/5 disabled:hover:bg-white/5 text-gray-300 disabled:text-gray-600 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200 border border-gray-600 disabled:border-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Copy className="w-4 h-4 shrink-0" />
               Einsteiger-Kürzel kopieren
             </button>
             <button
               type="button"
+              disabled={!canCopyAussteiger}
               onClick={() => copyAbbrevList("ausfahrend")}
-              className="inline-flex items-center justify-center gap-2 bg-white/20 hover:bg-white/35 text-gray-300 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400"
+              className="inline-flex items-center justify-center gap-2 bg-white/20 hover:bg-white/35 disabled:bg-white/5 disabled:hover:bg-white/5 text-gray-300 disabled:text-gray-600 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200 border border-gray-600 disabled:border-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Copy className="w-4 h-4 shrink-0" />
               Aussteiger-Kürzel kopieren
