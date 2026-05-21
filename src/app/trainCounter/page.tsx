@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Copy } from "lucide-react";
 import Link from "next/link";
 
 // Type definitions
@@ -38,6 +38,45 @@ interface Category {
 
 type CountsState = Record<CategoryId, CountData>;
 type CategoriesConfig = Record<CategoryId, Category>;
+
+/** Kürzel pro Kategorie; P (Personen) wird nicht exportiert */
+const CATEGORY_ABBREV: Partial<Record<CategoryId, string>> = {
+  2: "G",
+  3: "F",
+  4: "R",
+  5: "KW",
+  6: "K",
+  7: "TS",
+  8: "KA",
+  9: "EA",
+  10: "RF",
+  11: "RO",
+  12: "KG",
+  13: "SG",
+  14: "PE",
+  15: "GE",
+  16: "H",
+};
+
+const CATEGORY_IDS_FOR_EXPORT = (
+  Object.keys(CATEGORY_ABBREV) as string[]
+).map((id) => parseInt(id, 10) as CategoryId);
+
+const formatAbbrevList = (
+  counts: CountsState,
+  direction: Direction
+): string => {
+  const parts: string[] = [];
+  for (const id of CATEGORY_IDS_FOR_EXPORT) {
+    const abbrev = CATEGORY_ABBREV[id];
+    if (!abbrev) continue;
+    const count = counts[id]?.[direction] ?? 0;
+    if (count > 0) {
+      parts.push(`${count}${abbrev}`);
+    }
+  }
+  return parts.join(", ");
+};
 
 const getDefaultCounts = (): CountsState => ({
   1: { einfahrend: 0, ausfahrend: 0 },
@@ -270,21 +309,26 @@ export default function TrafficCounter() {
     setLastAction("Alle Zähler zurückgesetzt");
   };
 
-  const getTotalCounts = () => {
-    let totalEin = 0,
-      totalAus = 0;
-    Object.values(counts).forEach((count) => {
-      if (
-        count &&
-        typeof count === "object" &&
-        typeof count.einfahrend === "number" &&
-        typeof count.ausfahrend === "number"
-      ) {
-        totalEin += count.einfahrend;
-        totalAus += count.ausfahrend;
-      }
-    });
-    return { einfahrend: totalEin, ausfahrend: totalAus };
+  const copyAbbrevList = async (direction: Direction) => {
+    const label =
+      direction === "einfahrend" ? "Einsteiger" : "Aussteiger";
+    const text = formatAbbrevList(counts, direction);
+
+    if (typeof navigator === "undefined" || !navigator.clipboard) {
+      setLastAction("Kopieren nicht verfügbar");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(text);
+      setLastAction(
+        text
+          ? `${label} kopiert: ${text}`
+          : `${label}: nichts zu kopieren (keine Zählungen)`
+      );
+    } catch {
+      setLastAction(`${label}: Kopieren fehlgeschlagen`);
+    }
   };
 
   // Keyboard event handlers
@@ -402,8 +446,6 @@ export default function TrafficCounter() {
     };
   }, [mounted, activeKeys]);
 
-  const totals = getTotalCounts();
-
   // Show loading state during initial mount to prevent hydration mismatch
   if (!mounted) {
     return (
@@ -461,30 +503,23 @@ export default function TrafficCounter() {
             )}
           </div>
 
-          {/* Gesamtzähler */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-4">
-            <div className="bg-white/10 border border-gray-600 rounded-lg p-2 text-center">
-              <h3 className="text-base font-semibold text-gray-300">
-                Einfahrend Gesamt
-              </h3>
-              <p className="text-xl font-bold text-gray-200">
-                {totals.einfahrend}
-              </p>
-            </div>
-            <div className="bg-white/20 border border-gray-500 rounded-lg p-2 text-center">
-              <h3 className="text-base font-semibold text-gray-300">
-                Ausfahrend Gesamt
-              </h3>
-              <p className="text-xl font-bold text-gray-200">
-                {totals.ausfahrend}
-              </p>
-            </div>
-            <div className="bg-black border border-gray-600 rounded-lg p-2 text-center">
-              <h3 className="text-base font-semibold text-gray-300">Gesamt</h3>
-              <p className="text-xl font-bold text-gray-200">
-                {totals.einfahrend + totals.ausfahrend}
-              </p>
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
+            <button
+              type="button"
+              onClick={() => copyAbbrevList("einfahrend")}
+              className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/25 text-gray-300 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400"
+            >
+              <Copy className="w-4 h-4 shrink-0" />
+              Einsteiger-Kürzel kopieren
+            </button>
+            <button
+              type="button"
+              onClick={() => copyAbbrevList("ausfahrend")}
+              className="inline-flex items-center justify-center gap-2 bg-white/20 hover:bg-white/35 text-gray-300 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400"
+            >
+              <Copy className="w-4 h-4 shrink-0" />
+              Aussteiger-Kürzel kopieren
+            </button>
           </div>
 
           {/* Kategorien */}
