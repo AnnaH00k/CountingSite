@@ -4,6 +4,39 @@ import React, { useState, useEffect } from "react";
 import { ArrowLeft, Copy } from "lucide-react";
 import Link from "next/link";
 
+type NeoCssVars = React.CSSProperties & {
+  "--neo-r": number;
+  "--neo-g": number;
+  "--neo-b": number;
+};
+
+const hexToRgb = (hex: string): { r: number; g: number; b: number } | null => {
+  const normalized = hex.replace("#", "").trim();
+  if (normalized.length !== 6) return null;
+  const r = parseInt(normalized.slice(0, 2), 16);
+  const g = parseInt(normalized.slice(2, 4), 16);
+  const b = parseInt(normalized.slice(4, 6), 16);
+  if ([r, g, b].some((n) => Number.isNaN(n))) return null;
+  return { r, g, b };
+};
+
+const neoVars = (hex: string): NeoCssVars => {
+  const rgb = hexToRgb(hex);
+  if (!rgb) {
+    return { "--neo-r": 255, "--neo-g": 255, "--neo-b": 255 } as NeoCssVars;
+  }
+  return {
+    "--neo-r": rgb.r,
+    "--neo-g": rgb.g,
+    "--neo-b": rgb.b,
+  } as NeoCssVars;
+};
+
+const NEO_BTN =
+  "neo-btn rounded-xl transition-[box-shadow,transform,filter] duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/20";
+
+const NEO_NEUTRAL = "#71717A";
+
 // Type definitions
 type CategoryId =
   | 1
@@ -22,6 +55,26 @@ type CategoryId =
   | 14
   | 15
   | 16;
+
+const CATEGORY_PALETTE: Record<CategoryId, string> = {
+  1: "#94A3B8",
+  2: "#CBB08A",
+  3: "#EF7D6B",
+  4: "#E89450",
+  5: "#D9AE4B",
+  6: "#5C9FE8",
+  7: "#9D8FE0",
+  8: "#D67AA8",
+  9: "#5DB88A",
+  10: "#4DA89E",
+  11: "#52ADC4",
+  12: "#7CB66E",
+  13: "#A8BF5C",
+  14: "#B078C4",
+  15: "#C48686",
+  16: "#D4B84A",
+};
+
 type Direction = "einfahrend" | "ausfahrend";
 
 interface CountData {
@@ -58,13 +111,13 @@ const CATEGORY_ABBREV: Partial<Record<CategoryId, string>> = {
   16: "H",
 };
 
-const CATEGORY_IDS_FOR_EXPORT = (
-  Object.keys(CATEGORY_ABBREV) as string[]
-).map((id) => parseInt(id, 10) as CategoryId);
+const CATEGORY_IDS_FOR_EXPORT = (Object.keys(CATEGORY_ABBREV) as string[]).map(
+  (id) => parseInt(id, 10) as CategoryId,
+);
 
 const formatAbbrevList = (
   counts: CountsState,
-  direction: Direction
+  direction: Direction,
 ): string => {
   const parts: string[] = [];
   for (const id of CATEGORY_IDS_FOR_EXPORT) {
@@ -111,97 +164,97 @@ export default function TrafficCounter() {
       name: "P (Personen)",
       icon: () => null,
       color: "bg-gray-600",
-      titleColor: "#30807D", // Brown spectrum - saddle brown
+      titleColor: CATEGORY_PALETTE[1],
     },
     2: {
       name: "G (Gepäck)",
       icon: () => null,
       color: "bg-gray-700",
-      titleColor: "#C2A579", // Green spectrum - sea green
+      titleColor: CATEGORY_PALETTE[2],
     },
     3: {
       name: "F (Fahrrad)",
       icon: () => null,
       color: "bg-gray-800",
-      titleColor: "#E7333E", // Blue spectrum - steel blue
+      titleColor: CATEGORY_PALETTE[3],
     },
     4: {
       name: "R (Roller)",
       icon: () => null,
       color: "bg-gray-500",
-      titleColor: "#A4814B", // Red spectrum - dark red
+      titleColor: CATEGORY_PALETTE[4],
     },
     5: {
       name: "KW (Kinderwagen)",
       icon: () => null,
       color: "bg-gray-900",
-      titleColor: "#C03844", // Yellow spectrum - dark goldenrod
+      titleColor: CATEGORY_PALETTE[5],
     },
     6: {
       name: "K (Kinder)",
       icon: () => null,
       color: "bg-gray-400",
-      titleColor: "#142E97", // Purple spectrum - purple
+      titleColor: CATEGORY_PALETTE[6],
     },
     7: {
       name: "TS (Türsteher)",
       icon: () => null,
       color: "bg-gray-600",
-      titleColor: "#60462B", // Orange spectrum - tomato
+      titleColor: CATEGORY_PALETTE[7],
     },
     8: {
       name: "KA (getragenes Kind)",
       icon: () => null,
       color: "bg-gray-700",
-      titleColor: "#6D1626", // Cyan spectrum - light sea green
+      titleColor: CATEGORY_PALETTE[8],
     },
     9: {
       name: "EA (Wiedereinsteiger)",
       icon: () => null,
       color: "bg-gray-800",
-      titleColor: "#5F715B", // Brown spectrum - sienna
+      titleColor: CATEGORY_PALETTE[9],
     },
     10: {
       name: "RF (Rollstuhlfahrer)",
       icon: () => null,
       color: "bg-gray-500",
-      titleColor: "#57291A", // Green spectrum - lime green
+      titleColor: CATEGORY_PALETTE[10],
     },
     11: {
       name: "RO (Rollator)",
       icon: () => null,
       color: "bg-gray-900",
-      titleColor: "#981233", // Blue spectrum - royal blue
+      titleColor: CATEGORY_PALETTE[11],
     },
     12: {
       name: "KG(+Anzahl K) Kindergruppe",
       icon: () => null,
       color: "bg-gray-400",
-      titleColor: "#00CED1", // Red spectrum - crimson
+      titleColor: CATEGORY_PALETTE[12],
     },
     13: {
       name: "SG (Schülergruppe)",
       icon: () => null,
       color: "bg-gray-600",
-      titleColor: "#AE7B0E", // Yellow spectrum - gold
+      titleColor: CATEGORY_PALETTE[13],
     },
     14: {
       name: "PE (Personengruppe)",
       icon: () => null,
       color: "bg-gray-700",
-      titleColor: "#3D602A", // Purple spectrum - medium purple
+      titleColor: CATEGORY_PALETTE[14],
     },
     15: {
       name: "GE (Gedränge)",
       icon: () => null,
       color: "bg-gray-800",
-      titleColor: "#96766B", // Orange spectrum - dark orange
+      titleColor: CATEGORY_PALETTE[15],
     },
     16: {
       name: "H (Hund)",
       icon: () => null,
       color: "bg-gray-500",
-      titleColor: "#D65124", // Cyan spectrum - dark turquoise
+      titleColor: CATEGORY_PALETTE[16],
     },
   };
 
@@ -263,7 +316,7 @@ export default function TrafficCounter() {
       expiryDate.setFullYear(expiryDate.getFullYear() + 1); // 1 Jahr gültig
 
       document.cookie = `trainCounts=${encodeURIComponent(
-        JSON.stringify(counts)
+        JSON.stringify(counts),
       )}; expires=${expiryDate.toUTCString()}; path=/; SameSite=Lax`;
     } catch (error) {
       console.warn("Fehler beim Speichern der Daten:", error);
@@ -298,7 +351,7 @@ export default function TrafficCounter() {
     setLastAction(
       `${direction === "einfahrend" ? "Einfahrend" : "Ausfahrend"} - ${
         categories[category].name
-      }`
+      }`,
     );
   };
 
@@ -310,8 +363,7 @@ export default function TrafficCounter() {
   };
 
   const copyAbbrevList = async (direction: Direction) => {
-    const label =
-      direction === "einfahrend" ? "Einsteiger" : "Aussteiger";
+    const label = direction === "einfahrend" ? "Einsteiger" : "Aussteiger";
     const text = formatAbbrevList(counts, direction);
 
     if (!text) return;
@@ -498,20 +550,19 @@ export default function TrafficCounter() {
             </h1>
 
             {lastAction && (
-              <div className="bg-black  rounded-lg p-2 mb-2">
-                <p className="text-white/50 font-medium text-sm">
-                  Letzte Aktion: {lastAction}
-                </p>
-              </div>
+              <p className="mb-2 text-sm font-medium text-white/50">
+                Letzte Aktion: {lastAction}
+              </p>
             )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
             <button
               type="button"
               disabled={!canCopyEinsteiger}
               onClick={() => copyAbbrevList("einfahrend")}
-              className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/25 disabled:bg-white/5 disabled:hover:bg-white/5 text-gray-300 disabled:text-gray-600 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200 border border-gray-600 disabled:border-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:cursor-not-allowed disabled:opacity-50"
+              style={neoVars(NEO_NEUTRAL)}
+              className={`${NEO_BTN} neo-btn-neutral inline-flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-medium text-gray-300 disabled:text-gray-600`}
             >
               <Copy className="w-4 h-4 shrink-0" />
               Einsteiger-Kürzel kopieren
@@ -520,25 +571,25 @@ export default function TrafficCounter() {
               type="button"
               disabled={!canCopyAussteiger}
               onClick={() => copyAbbrevList("ausfahrend")}
-              className="inline-flex items-center justify-center gap-2 bg-white/20 hover:bg-white/35 disabled:bg-white/5 disabled:hover:bg-white/5 text-gray-300 disabled:text-gray-600 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200 border border-gray-600 disabled:border-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:cursor-not-allowed disabled:opacity-50"
+              style={neoVars(NEO_NEUTRAL)}
+              className={`${NEO_BTN} neo-btn-neutral inline-flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-medium text-gray-300 disabled:text-gray-600`}
             >
               <Copy className="w-4 h-4 shrink-0" />
               Aussteiger-Kürzel kopieren
             </button>
           </div>
 
-          {/* Kategorien */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
             {(Object.entries(categories) as [string, Category][]).map(
               ([keyStr, category]) => {
                 const key = parseInt(keyStr) as CategoryId;
-                const IconComponent = category.icon;
                 return (
                   <div
                     key={key}
-                    className="bg-black rounded-lg p-2 border border-gray-600"
+                    className="neo-card rounded-xl p-2"
+                    style={neoVars(category.titleColor)}
                   >
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-between mb-1">
                       <div>
                         <h3
                           className="font-semibold text-sm"
@@ -546,117 +597,99 @@ export default function TrafficCounter() {
                         >
                           {category.name}
                         </h3>
-                        <p className="text-xs text-gray-400">
-                          Taste:{" "}
-                          {key <= 9
-                            ? key
-                            : key === 10
-                            ? "0"
-                            : key === 11
-                            ? "Q"
-                            : key === 12
-                            ? "W"
-                            : key === 13
-                            ? "S"
-                            : key === 14
-                            ? "D"
-                            : key === 15
-                            ? "T"
-                            : "Z"}
-                        </p>
                       </div>
                       <div className="text-right">
                         <p className="text-lg font-bold text-gray-100">
                           {(counts[key]?.einfahrend || 0) +
                             (counts[key]?.ausfahrend || 0)}
                         </p>
-                        <p className="text-xs text-gray-400">Gesamt</p>
+                        <p className="text-xs text-gray-500">Gesamt</p>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2">
-                      {/* Einfahrend */}
-                      <div className="text-center">
-                        <button
-                          onClick={() => updateCount(key, "einfahrend")}
-                          className="w-full bg-white/10 hover:bg-white/40 text-gray-300 rounded-lg p-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 border border-gray-600"
-                        >
-                          <div className="text-lg font-bold">
-                            {counts[key]?.einfahrend || 0}
-                          </div>
-                          <div className="text-xs">Einfahrend</div>
-                          <div className="text-xs mt-0.5 opacity-75">
-                            E +{" "}
-                            {key <= 9
-                              ? key
-                              : key === 10
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => updateCount(key, "einfahrend")}
+                        style={neoVars(category.titleColor)}
+                        className={`${NEO_BTN} w-full p-2.5 text-gray-200`}
+                      >
+                        <div className="text-lg font-bold">
+                          {counts[key]?.einfahrend || 0}
+                        </div>
+                        <div className="text-xs text-gray-400">Einfahrend</div>
+                        <div className="text-[10px] mt-0.5 text-gray-500">
+                          E +{" "}
+                          {key <= 9
+                            ? key
+                            : key === 10
                               ? "0"
                               : key === 11
-                              ? "Q"
-                              : key === 12
-                              ? "W"
-                              : key === 13
-                              ? "S"
-                              : key === 14
-                              ? "D"
-                              : key === 15
-                              ? "T"
-                              : "Z"}
-                          </div>
-                        </button>
-                      </div>
-
-                      {/* Ausfahrend */}
-                      <div className="text-center">
-                        <button
-                          onClick={() => updateCount(key, "ausfahrend")}
-                          className="w-full bg-white/20 hover:bg-white/40 text-gray-300 rounded-lg p-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 border border-gray-600"
-                        >
-                          <div className="text-lg font-bold">
-                            {counts[key]?.ausfahrend || 0}
-                          </div>
-                          <div className="text-xs">Ausfahrend</div>
-                          <div className="text-xs mt-0.5 opacity-75">
-                            A +{" "}
-                            {key <= 9
-                              ? key
-                              : key === 10
+                                ? "Q"
+                                : key === 12
+                                  ? "W"
+                                  : key === 13
+                                    ? "S"
+                                    : key === 14
+                                      ? "D"
+                                      : key === 15
+                                        ? "T"
+                                        : "Z"}
+                        </div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => updateCount(key, "ausfahrend")}
+                        style={neoVars(category.titleColor)}
+                        className={`${NEO_BTN} w-full p-2.5 text-gray-200`}
+                      >
+                        <div className="text-lg font-bold">
+                          {counts[key]?.ausfahrend || 0}
+                        </div>
+                        <div className="text-xs text-gray-400">Ausfahrend</div>
+                        <div className="text-[10px] mt-0.5 text-gray-500">
+                          A +{" "}
+                          {key <= 9
+                            ? key
+                            : key === 10
                               ? "0"
                               : key === 11
-                              ? "Q"
-                              : key === 12
-                              ? "W"
-                              : key === 13
-                              ? "S"
-                              : key === 14
-                              ? "D"
-                              : key === 15
-                              ? "T"
-                              : "Z"}
-                          </div>
-                        </button>
-                      </div>
+                                ? "Q"
+                                : key === 12
+                                  ? "W"
+                                  : key === 13
+                                    ? "S"
+                                    : key === 14
+                                      ? "D"
+                                      : key === 15
+                                        ? "T"
+                                        : "Z"}
+                        </div>
+                      </button>
                     </div>
                   </div>
                 );
-              }
+              },
             )}
           </div>
 
-          {/* Reset Button */}
           <div className="text-center mt-8">
             <button
+              type="button"
               onClick={resetCounts}
-              className="bg-black hover:bg-white/10 text-gray-300 px-4 py-2 rounded-lg font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 text-sm border border-gray-600"
+              style={neoVars(NEO_NEUTRAL)}
+              className={`${NEO_BTN} neo-btn-neutral px-5 py-2.5 text-sm font-semibold text-gray-300`}
             >
               Alle Zähler zurücksetzen (R)
             </button>
           </div>
 
-          {/* Aktive Tasten Anzeige */}
           {activeKeys.size > 0 && (
             <div className="mt-4 text-center">
-              <div className="bg-white/10 border border-gray-600 rounded-lg p-1 inline-block">
+              <div
+                className="neo-panel rounded-xl px-3 py-1.5 inline-block"
+                style={neoVars(NEO_NEUTRAL)}
+              >
                 <span className="text-gray-300 text-xs">
                   Aktive Tasten:{" "}
                   {Array.from(activeKeys)
